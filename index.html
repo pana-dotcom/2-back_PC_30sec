@@ -20,7 +20,6 @@ body {
     margin: 30px;
     line-height: 1;
 }
-
 </style>
 </head>
 
@@ -31,7 +30,6 @@ body {
 <button id="startBtn">スタート</button>
 
 <div id="game" style="display:none;">
-    <div id="timer">残り：30秒</div>
     <div id="letter">✖</div>
     <p>2つ前の文字と一致時はEnterキーを押す</p>
 </div>
@@ -44,7 +42,7 @@ let responded = false;
 
 let baseLetters = ["B","F","K","H","M","Q","R","X"];
 
-let timeLimit = 30;
+let timeLimit = 30; // ✅ 30秒（内部用）
 let timeLeft = timeLimit;
 let gameTimer;
 
@@ -73,23 +71,25 @@ function startGame() {
     logs = [];
 
     timeLeft = timeLimit;
-    updateTimer();
 
+    // ✅ 見えないタイマー
     gameTimer = setInterval(countDown, 1000);
-    nextTrial();
+
+    // ✅ ×から開始
+    document.getElementById("letter").innerText = "✖";
+
+    setTimeout(() => {
+        if (!isRunning) return;
+        nextTrial();
+    }, fixationDuration);
 }
 
 function countDown() {
     timeLeft--;
-    updateTimer();
 
     if (timeLeft <= 0) {
         endGame();
     }
-}
-
-function updateTimer() {
-    document.getElementById("timer").innerText = "残り：" + timeLeft + "秒";
 }
 
 function nextTrial() {

@@ -11,7 +11,6 @@ body {
     margin-top: 50px;
 }
 
-/* 共通表示エリア */
 #letter {
     font-size: 80px;
     height: 120px;
@@ -20,14 +19,11 @@ body {
     justify-content: center;
     margin: 30px;
     line-height: 1;
-
-    /* ✅ 常に中央に固定 */
     width: 120px;
     margin-left: auto;
     margin-right: auto;
 }
 
-/* ✅ ×専用（位置は変えない） */
 .fixation {
     color: white;
     background: gray;
@@ -44,10 +40,12 @@ body {
 
 <div id="game" style="display:none;">
     <div id="letter">✖</div>
+
     <p>2つ前の文字と一致時はEnterキーを押す</p>
 </div>
 
 <script>
+
 let sequence = [];
 let index = 0;
 let logs = [];
@@ -87,6 +85,7 @@ function showStimulus(letter) {
 }
 
 function startGame() {
+
     isRunning = true;
 
     sequence = [];
@@ -106,6 +105,7 @@ function startGame() {
 }
 
 function countDown() {
+
     timeLeft--;
 
     if (timeLeft <= 0) {
@@ -114,81 +114,112 @@ function countDown() {
 }
 
 function nextTrial() {
+
     if (!isRunning) return;
 
     responded = false;
 
-    let base = baseLetters[Math.floor(Math.random() * baseLetters.length)];
-    let letter = Math.random() < 0.5 ? base.toLowerCase() : base;
+    let base =
+        baseLetters[Math.floor(Math.random() * baseLetters.length)];
+
+    let letter =
+        Math.random() < 0.5 ? base.toLowerCase() : base;
 
     sequence.push(letter);
 
     showStimulus(letter);
+
     index++;
 
     setTimeout(() => {
 
         if (!isRunning) return;
 
-        if (!responded) {
-            evaluate(false);
-        }
-
         showFixation();
 
         setTimeout(() => {
+
             if (!isRunning) return;
+
+            if (!responded) {
+                evaluate(false);
+            }
+
             nextTrial();
+
         }, fixationDuration);
 
     }, letterDuration);
 }
 
 document.addEventListener("keydown", (e) => {
+
     if (e.key !== "Enter") return;
     if (keyLocked) return;
 
     keyLocked = true;
+
     response();
 });
 
 document.addEventListener("keyup", (e) => {
+
     if (e.key === "Enter") {
         keyLocked = false;
     }
 });
 
 function response() {
+
     if (!isRunning) return;
     if (responded) return;
 
     responded = true;
+
     evaluate(true);
 }
 
 function evaluate(clicked) {
+
     if (index < 3) return;
 
     let current = sequence[index - 1];
     let back2 = sequence[index - 3];
 
-    let match = current.toLowerCase() === back2.toLowerCase();
+    let match =
+        current.toLowerCase() === back2.toLowerCase();
 
     let hit = 0;
     let miss = 0;
     let fa = 0;
     let cr = 0;
 
-    if (match && clicked) hit = 1;
-    else if (match && !clicked) miss = 1;
-    else if (!match && clicked) fa = 1;
-    else if (!match && !clicked) cr = 1;
+    if (match && clicked) {
+        hit = 1;
+    }
+    else if (match && !clicked) {
+        miss = 1;
+    }
+    else if (!match && clicked) {
+        fa = 1;
+    }
+    else if (!match && !clicked) {
+        cr = 1;
+    }
 
-    logs.push([logs.length + 1, hit, miss, fa, cr]);
+    logs.push([
+        logs.length + 1,
+        hit,
+        miss,
+        fa,
+        cr
+    ]);
 }
 
 function endGame() {
+
     isRunning = false;
+
     clearInterval(gameTimer);
 
     letterDiv.innerText = "終了";
@@ -198,28 +229,36 @@ function endGame() {
 }
 
 function exportCSV() {
-    let csv = "trial,Hit,Miss,FalseAlarm,CorrectRejection\n";
+
+    let csv =
+        "trial,Hit,Miss,FalseAlarm,CorrectRejection\n";
 
     logs.forEach(row => {
         csv += row.join(",") + "\n";
     });
 
-    let blob = new Blob([csv], { type: "text/csv" });
-    let link = document.createElement("a");
+    let blob =
+        new Blob([csv], { type: "text/csv" });
+
+    let link =
+        document.createElement("a");
 
     let now = new Date();
+
     let YYYY = now.getFullYear();
     let MM = String(now.getMonth() + 1).padStart(2,"0");
     let DD = String(now.getDate()).padStart(2,"0");
     let hh = String(now.getHours()).padStart(2,"0");
     let mm = String(now.getMinutes()).padStart(2,"0");
 
-    let filename = `n-back_${YYYY}${MM}${DD}_${hh}${mm}.csv`;
+    let filename =
+        `n-back_${YYYY}${MM}${DD}_${hh}${mm}.csv`;
 
     link.href = URL.createObjectURL(blob);
     link.download = filename;
     link.click();
 }
+
 </script>
 
 </body>
